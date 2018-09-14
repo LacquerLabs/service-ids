@@ -1,0 +1,87 @@
+# This is a version 1 formatted index.
+version: 1
+
+sources:
+
+  # Proofpoint/Emerging Threats Open ruleset.
+  et/open:
+    vendor: Proofpoint
+    license: MIT
+    summary: Emerging Threats Open Ruleset
+    url: https://rules.emergingthreats.net/open/suricata-%(__version__)s/emerging.rules.tar.gz
+
+  # Proofpoint/Emerging Threats Pro ruleset.
+  et/pro:
+    summary: Emerging Threats Pro Ruleset
+    description: |
+      Proofpoint ET Pro is a timely and accurate rule set for detecting and blocking advanced threats
+    vendor: Proofpoint
+    license: Commercial
+    url: https://rules.emergingthreatspro.com/%(secret-code)s/suricata-%(__version__)s/etpro.rules.tar.gz
+    subscribe-url: https://www.proofpoint.com/us/threat-insight/et-pro-ruleset
+    parameters:
+      secret-code:
+        prompt: Emerging Threats Pro access code
+    replaces:
+      - et/open
+
+  # The OISF Traffic ID ruleset.
+  oisf/trafficid:
+    vendor: OISF
+    summary: Suricata Traffic ID ruleset
+    license: MIT
+    url: https://raw.githubusercontent.com/jasonish/suricata-trafficid/master/rules/traffic-id.rules
+    support-url: https://redmine.openinfosecfoundation.org/
+    min-version: 4.0.0
+
+  ptresearch/attackdetection:
+    vendor: Positive Technologies
+    summary: Positive Technologies Attack Detection Team ruleset
+    description: |
+      The Attack Detection Team searches for new vulnerabilities and 0-days, reproduces it and creates PoC exploits to understand how these security flaws work and how related attacks can be detected on the network layer. Additionally, we are interested in malware and hackers’ TTPs, so we develop Suricata rules for detecting all sorts of such activities.
+    url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/pt.rules.tar.gz
+    license: Custom
+    license-url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/LICENSE
+
+  # Secureworks suricata-malware ruleset.
+  scwx/malware:
+    vendor: Secureworks
+    summary: Secureworks suricata-malware ruleset.
+    description: |
+      High-fidelity, high-priority ruleset composed mainly of malware-related countermeasures and curated by the Secureworks Counter Threat Unit research team.
+    url: https://ws.secureworks.com/ti/ruleset/%(secret-code)s/Suricata_suricata-malware_latest.tgz
+    parameters:
+      secret-code:
+        prompt: Secureworks Threat Intelligence Authentication Token
+    license: Commercial
+    subscribe-url: https://www.secureworks.com/contact/ (Please reference CTU Countermeasures)
+    min-version: 2.0.9
+
+  # Secureworks suricata-security ruleset.
+  scwx/security:
+    vendor: Secureworks
+    summary: Secureworks suricata-security ruleset.
+    description: |
+      Broad ruleset composed of malware rules and other security-related countermeasures, and curated by the Secureworks Counter Threat Unit research team.
+    url: https://ws.secureworks.com/ti/ruleset/%(secret-code)s/Suricata_suricata-security_latest.tgz
+    parameters:
+      secret-code:
+        prompt: Secureworks Threat Intelligence Authentication Token
+    license: Commercial
+    subscribe-url: https://www.secureworks.com/contact/ (Please reference CTU Countermeasures)
+    min-version: 2.0.9
+
+  # SSBL FP blacklist ruleset.
+  sslbl/ssl-fp-blacklist:
+    summary: Abuse.ch SSL Blacklist
+    vendor: Abuse.ch
+    license: Non-Commercial
+    url: https://sslbl.abuse.ch/blacklist/sslblacklist.rules
+
+  # Etnetera a.s. blacklist ruleset
+  etnetera/aggressive:
+    vendor: Etnetera a.s.
+    license: MIT
+    summary: Etnetera aggressive IP blacklist
+    url: https://security.etnetera.cz/feeds/etn_aggressive.rules
+    min-version: 4.0.0

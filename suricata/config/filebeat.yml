@@ -1,0 +1,32 @@
+#=========================== Filebeat prospectors =============================
+
+filebeat.prospectors:
+- type: log
+  enabled: true
+  keys_under_root: true
+  overwrite_keys: false
+  paths:
+  - /var/log/suricata/eve.json
+
+fields:
+  environment: dev
+  hosting_env: citi
+  log_type: syslog
+#================================ Outputs =====================================
+
+# Configure what outputs to use when sending the data collected by the beat
+#-------------------------- Elasticsearch output ------------------------------
+# output.elasticsearch:
+#   hosts: '127.0.0.1:9200'
+
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  hosts: '127.0.0.1:5044'
+#  ssl:
+#    certificate_authorities: ["filebeat.crt"]
+#loadbalance: true
+
+#================================ Logging =====================================
+
+#logging.to_files: true
+#logging.to_syslog: false
