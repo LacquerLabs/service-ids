@@ -24,6 +24,10 @@ kill: ## Attempt to kill the dev cluster
 nuke: ## Kill and Remove defined containers
 	docker-compose -f docker-compose.yml rm --force --stop
 
+rmstorage: ## delete storage
+	rm -rf ./storage/elasticsearch/*
+	rm -rf ./storage/eve/*
+
 connect: ## Attempt to connect to the app on the development cluster
 	docker-compose -f docker-compose.yml exec app /bin/sh
 
