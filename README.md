@@ -1,5 +1,16 @@
 # Service IDS
 
+
+## TL;DR - NT;WTF?
+
+```
+# make build
+# make start
+```
+
+`make` on it's own will show options
+
+
 ## Exposed Services
 
 * [kibana](http://localhost:5601/)
