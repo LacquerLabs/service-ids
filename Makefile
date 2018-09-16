@@ -1,6 +1,10 @@
 .DEFAULT_GOAL := help
 DOCKERSYNC := $(shell command -v docker-sync-stack 2> /dev/null)
 
+makestorage: ## just make the directories for storage
+	mkdir -p ./storage/elasticsearch
+	mkdir -p ./storage/eve
+
 build: ## Build the app
 	docker-compose stop ;\
 	docker-compose build
@@ -9,10 +13,10 @@ rebuild: ## Attempt to rebuild the app without cache
 	docker-compose rm --stop --force ;\
 	docker-compose build --force-rm --no-cache
 
-start: ## Start the dev cluster
+start: makestorage ## Start the dev cluster
 	docker-compose -f docker-compose.yml up
 
-run: ## Start the development cluster in detached mode
+run: makestorage ## Start the development cluster in detached mode
 	docker-compose -f docker-compose.yml up -d
 
 stop: ## Attempt to stop the dev cluster
@@ -29,7 +33,7 @@ cleanstorage: ## delete storage
 	rm -rf ./storage/eve/*
 
 connect: ## Attempt to connect to the app on the development cluster
-	docker-compose -f docker-compose.yml exec app /bin/sh
+	docker-compose -f docker-compose.yml exec suricata /bin/sh
 
 watchlogs: ## Watch the logs
 	docker-compose -f docker-compose.yml logs -f

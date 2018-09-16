@@ -34,10 +34,6 @@ RUN pip3 install pyyaml && \
 
 # Include configs
 COPY config/suricata.yaml /etc/suricata/suricata.yaml
-COPY config/capture-filter.bpf /etc/suricata/capture-filter.bpf
-COPY config/filebeat.yml /etc/filebeat.yml
-COPY config/cmd.sh /
-COPY config/10_update_rules.sh /container-init.d/
 
 # update suricata sources with update-sources
 RUN suricata-update update-sources && \
@@ -50,7 +46,16 @@ RUN suricata-update update-sources && \
 # Clean up
 RUN chmod a+x /cmd.sh /container-init.d/10_update_rules.sh && \
     rm -rf /root/* && \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/* && \
+    mkdir -p /var/run/suricata && \
+    chown -R suri:suri /var/run/suricata && \
+    chmod -R ug+rw /var/run/suricata
+
+# Include more configs here to maximize cache
+COPY config/capture-filter.bpf /etc/suricata/capture-filter.bpf
+COPY config/filebeat.yml /etc/filebeat.yml
+COPY config/cmd.sh /
+COPY config/10_update_rules.sh /container-init.d/
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/cmd.sh"]

@@ -3,7 +3,6 @@
 version: '3.2'
 
 services:
-
 # Suricata service
   suricata:
     build:
@@ -17,15 +16,6 @@ services:
     volumes:
       - volume_log:/var/log/suricata
 
-  logshipper:
-    build:
-      context: ./logshipper
-      dockerfile: Dockerfile
-    links:
-      - elasticsearch
-    ports:
-      - 5044:5044
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
     ports:
@@ -35,6 +25,17 @@ services:
       - discovery.type=single-node
     volumes:
       - elastic_data:/usr/share/elasticsearch/data:rw
+
+  logshipper:
+    build:
+      context: ./logshipper
+      dockerfile: Dockerfile
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    ports:
+      - 5044:5044
 
   kibana:
     image: docker.elastic.co/kibana/kibana:6.4.0
