@@ -19,9 +19,9 @@ services:
       - traefik.enable=false
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+    image: blacktop/elasticsearch:6.5.4
     ports:
-      - 9200
+      - 9200:9200
       - 9300
     environment:
       - discovery.type=single-node
@@ -30,10 +30,13 @@ services:
     labels:
       - traefik.enable=false
 
-  logshipper:
-    build:
-      context: ./logshipper
-      dockerfile: Dockerfile
+  logstash:
+    image: blacktop/logstash:6.5.4
+    command: -f /etc/logstash/conf.d/
+    volumes:
+      - $PWD/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf
+      - $PWD/logstash/elasticsearch-template.json:/etc/logstash/template.json
+      - $PWD/logstash/GeoLite2-City.mmdb:/data/GeoLite2-City.mmdb
     depends_on:
       - elasticsearch
     links:
@@ -44,7 +47,7 @@ services:
       - traefik.enable=false
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.4.0
+    image: blacktop/kibana:6.5.4
     ports:
       - 5601
     environment:
@@ -57,34 +60,6 @@ services:
       - traefik.enable=true
       - traefik.frontend.rule=Host:kibana.docker.localhost
       - traefik.port=5601
-
-  evebox:
-    image: jasonish/evebox:master
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-    ports:
-      - 5636
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
-    labels:
-      - traefik.enable=true
-      - traefik.frontend.rule=Host:evebox.docker.localhost
-      - traefik.port=5636
-
-  grafana:
-    image: grafana/grafana:5.4.2
-    ports:
-      - 3000
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
-    labels:
-      - traefik.enable=true
-      - traefik.frontend.rule=Host:grafana.docker.localhost
-      - traefik.port=3000
 
   reverse-proxy:
     image: traefik:v1.7.6-alpine  # The official Traefik docker image
