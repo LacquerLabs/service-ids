@@ -1,0 +1,2 @@
+alias dir=ls -alh --color
+alias dir="ls -alh --color"

@@ -5,11 +5,8 @@ ENV TIMEZONE=UTC \
     APP_ENV=prod
 
 # add in repos for testing
-RUN echo '@testing https://dl-3.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
-    echo '@community https://dl-3.alpinelinux.org/alpine/v3.4/community'
-
-# Install packages
-RUN apk --update --no-cache add dumb-init tzdata ca-certificates file procps wget py-pip suricata filebeat@testing
+RUN echo '@edgetest http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
+    apk --no-cache add dumb-init tzdata ca-certificates file procps wget py-pip suricata filebeat@edgetest
 
 # configure up some container stuff
 RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
@@ -21,7 +18,8 @@ RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     echo 'cat /etc/os-release' >> /etc/motd && \
     echo 'cat /etc/os-release' >> ~/.profile && \
     echo 'date' >> ~/.profile && \
-    mkdir -p /container-init.d
+    mkdir -p /container-init.d && \
+    apk --no-cache del tzdata
 
 # user for suricata
 RUN addgroup -g 2000 suri && \
@@ -30,6 +28,7 @@ RUN addgroup -g 2000 suri && \
 # setup update-suricata
 RUN if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
+    pip install --upgrade pip && \
     pip install pyyaml && \
     pip install https://github.com/OISF/suricata-update/archive/master.zip && \
     pip install --pre --upgrade suricata-update
