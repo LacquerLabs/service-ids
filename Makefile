@@ -18,6 +18,7 @@ start: makestorage ## Start the dev cluster
 
 run: makestorage ## Start the development cluster in detached mode
 	docker-compose -f docker-compose.yml up -d
+	docker-compose -f docker-compose.yml logs -f
 
 stop: ## Attempt to stop the dev cluster
 	docker-compose -f docker-compose.yml stop
