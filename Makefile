@@ -18,7 +18,6 @@ start: makestorage ## Start the dev cluster
 
 run: makestorage ## Start the development cluster in detached mode
 	docker-compose -f docker-compose.yml up -d
-	docker-compose -f docker-compose.yml logs -f
 
 stop: ## Attempt to stop the dev cluster
 	docker-compose -f docker-compose.yml stop
@@ -36,7 +35,7 @@ cleanstorage: ## delete storage
 connect: ## Attempt to connect to the app on the development cluster
 	docker-compose -f docker-compose.yml exec suricata /bin/sh
 
-watchlogs: ## Watch the logs
+logs: ## Watch the logs
 	docker-compose -f docker-compose.yml logs -f
 
 .PHONY: help

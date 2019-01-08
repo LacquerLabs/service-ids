@@ -56,6 +56,7 @@ RUN chmod a+x /cmd.sh /container-init.d/10_update_rules.sh && \
     rm -rf /root/* && \
     rm -rf /var/cache/apk/* && \
     mkdir -p /var/run/suricata && \
+    chmod go-w /etc/filebeat.yml && \
     chown -R suri:suri /var/run/suricata /var/lib/suricata /etc/suricata && \
     chmod -R ug+rw /var/run/suricata /var/lib/suricata /etc/suricata
 
