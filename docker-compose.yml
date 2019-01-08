@@ -104,7 +104,6 @@ services:
       - traefik.frontend.auth.basic=admin:$$apr1$$Uwy4HMRc$$mO4kAq2Vh3gDoeYZp6kSc0
       - traefik.port=8080
 
-
 volumes:
   elastic_data:
     driver: local

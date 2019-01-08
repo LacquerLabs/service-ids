@@ -7,5 +7,6 @@ ADD ${GEOIP_BASE_URL}/${GEOIP_CITY_DB}.gz /tmp/
 RUN gunzip -v -c /tmp/${GEOIP_CITY_DB}.gz > /tmp/${GEOIP_CITY_DB}
 
 FROM docker.elastic.co/logstash/logstash:6.4.0
+COPY config/es5-template.json /usr/share/logstash/es5-template.json
 COPY config/logstash.conf /usr/share/logstash/pipeline/logstash.conf
 COPY --from=geodb /tmp/GeoLite2-City.mmdb /data/GeoLite2-City.mmdb
