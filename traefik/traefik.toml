@@ -1,0 +1,20 @@
+defaultEntryPoints = ["http", "https"]
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+[api]
+  dashboard = true
+  debug = false
+  
+
+[acme]
+email = "gilley.joel@gmail.com"
+storage = "acme.json"
+entryPoint = "https"
+onHostRule = false
+onDemand = false
+
