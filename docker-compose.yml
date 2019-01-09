@@ -1,6 +1,6 @@
 # T-Pot (Standard)
 # For docker-compose ...
-version: '3.2'
+version: '3.4'
 
 services:
 # Suricata service
@@ -9,6 +9,8 @@ services:
       context: ./suricata
       dockerfile: Dockerfile
     network_mode: "host"
+    environment:
+      - LISTEN_IFACE=eth0
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -35,7 +37,7 @@ services:
     command: -f /etc/logstash/conf.d/
     volumes:
       - $PWD/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf
-      - $PWD/logstash/elasticsearch-template.json:/etc/logstash/template.json
+      - $PWD/logstash/elasticsearch-template.json:/etc/logstash/elasticsearch-template.json
       - $PWD/logstash/GeoLite2-City.mmdb:/data/GeoLite2-City.mmdb
     depends_on:
       - elasticsearch
@@ -60,6 +62,19 @@ services:
       - traefik.enable=true
       - traefik.frontend.rule=Host:kibana.docker.localhost
       - traefik.port=5601
+
+  cronjobber:
+    build:
+      context: ./crontab-ui
+      dockerfile: Dockerfile
+    ports:
+      - 8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:cronjobber.docker.localhost
+      - traefik.port=8000
 
   reverse-proxy:
     image: traefik:v1.7.6-alpine  # The official Traefik docker image

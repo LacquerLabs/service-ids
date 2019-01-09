@@ -18,11 +18,16 @@ for script in /container-init.d/*; do
 	echo
 done
 
-IFACE=$(/sbin/ip address | grep '^2: ' | awk '{ print $2 }' | tr -d [:punct:])
+if [[ -z "${LISTEN_IFACE}" ]]; then
+	IFACE=$(/sbin/ip address | grep '^2: ' | awk '{ print $2 }' | tr -d [:punct:])
+else
+	IFACE=${LISTEN_IFACE}
+fi
+
 echo "configuring ${IFACE}..."
 /sbin/ip link set ${IFACE} multicast off
 /sbin/ip link set ${IFACE} promisc on
 
 echo "starting app..."
 filebeat -e --c /etc/filebeat.yml &
-suricata -v -F /etc/suricata/capture-filter.bpf -i $(/sbin/ip address | grep '^2: ' | awk '{ print $2 }' | tr -d [:punct:])
+suricata -v -F /etc/suricata/capture-filter.bpf -i ${IFACE}
