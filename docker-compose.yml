@@ -6,8 +6,9 @@ services:
 # Suricata service
   suricata:
     build:
-      context: ./suricata
+      context: ./docker_contexts/suricata
       dockerfile: Dockerfile
+    restart: unless-stopped
     network_mode: "host"
     environment:
       - LISTEN_IFACE=eth0
@@ -20,53 +21,52 @@ services:
     labels:
       - traefik.enable=false
 
-  elasticsearch:
-    image: blacktop/elasticsearch:6.5.4
+  reverse-proxy:
+    image: traefik:v1.7.6-alpine  # The official Traefik docker image
+    restart: unless-stopped
+    command: --docker  # Enables the web UI and tells Traefik to listen to docker
     ports:
-      - 9200:9200
-      - 9300
-    environment:
-      - discovery.type=single-node
+      - 80:80
+      - 443:443
+      - 8080
     volumes:
-      - elastic_data:/usr/share/elasticsearch/data:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $PWD/container_mounts/traefik/traefik.toml:/traefik.toml
+      - $PWD/container_mounts/traefik/acme.json:/acme.json
+    networks:
+      - network_frontend
+      - network_proxy
     labels:
-      - traefik.enable=false
+      - traefik.docker.network=network_proxy
+      - traefik.frontend.rule=Host:traefik.docker.localhost
+      - traefik.frontend.auth.basic=admin:$$apr1$$Uwy4HMRc$$mO4kAq2Vh3gDoeYZp6kSc0
+      - traefik.port=8080
 
-  logstash:
-    image: blacktop/logstash:6.5.4
-    command: -f /etc/logstash/conf.d/
+  portainer:
+    container_name: service-portainer
+    image: portainer/portainer:latest
+    restart: unless-stopped
+    command: --host=unix:///var/run/docker.sock
     volumes:
-      - $PWD/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf
-      - $PWD/logstash/elasticsearch-template.json:/etc/logstash/elasticsearch-template.json
-      - $PWD/logstash/GeoLite2-City.mmdb:/data/GeoLite2-City.mmdb
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - network_proxy
     ports:
-      - 5044:5044
+      - 9000
     labels:
-      - traefik.enable=false
-
-  kibana:
-    image: blacktop/kibana:6.5.4
-    ports:
-      - 5601
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
-    labels:
-      - traefik.enable=true
-      - traefik.frontend.rule=Host:kibana.docker.localhost
-      - traefik.port=5601
+      - traefik.frontend.rule=Host:portainer.docker.localhost
+      - traefik.port=9000
+      - org.label-schema.group=portainer
+      - traefik.backend.healthcheck.interval=60s
 
   cronjobber:
     build:
-      context: ./crontab-ui
+      context: ./docker_contexts/crontab-ui
       dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - network_proxy
     ports:
       - 8000
     volumes:
@@ -76,25 +76,78 @@ services:
       - traefik.frontend.rule=Host:cronjobber.docker.localhost
       - traefik.port=8000
 
-  reverse-proxy:
-    image: traefik:v1.7.6-alpine  # The official Traefik docker image
-    command: --docker  # Enables the web UI and tells Traefik to listen to docker
+  kibana:
+    image: blacktop/kibana:6.5.4
+    restart: unless-stopped
     ports:
-      - 80:80
-      - 443:443
-    expose:
-      - 8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - $PWD/traefik/traefik.toml:/traefik.toml
-      - $PWD/traefik/acme.json:/acme.json
+      - 5601
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - network_proxy
+      - network_db
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
     labels:
-      - traefik.docker.network=network_proxy
-      - traefik.frontend.rule=Host:traefik.docker.localhost
-      - traefik.frontend.auth.basic=admin:$$apr1$$Uwy4HMRc$$mO4kAq2Vh3gDoeYZp6kSc0
-      - traefik.port=8080
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:kibana.docker.localhost
+      - traefik.port=5601
+
+
+  logstash:
+    image: blacktop/logstash:6.5.4
+    restart: unless-stopped
+    command: -f /etc/logstash/conf.d/
+    volumes:
+      - $PWD/container_mounts/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf
+      - $PWD/container_mounts/logstash/elasticsearch-template.json:/etc/logstash/elasticsearch-template.json
+      - $PWD/container_mounts/logstash/GeoLite2-City.mmdb:/data/GeoLite2-City.mmdb
+    networks:
+      - network_frontend
+      - network_proxy
+      - network_db
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    ports:
+      - 5044:5044
+    labels:
+      - traefik.enable=false
+
+  elasticsearch:
+    image: blacktop/elasticsearch:6.5.4
+    restart: unless-stopped
+    networks:
+      - network_db
+    ports:
+      - 9200
+      - 9300
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data:rw
+    labels:
+      - traefik.enable=false
+
+networks:
+  network_proxy:
+    external: true
+  network_frontend:
+    external: true
+  network_db:
+    external: true
 
 volumes:
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '$PWD/storage/portainer'
+
   elastic_data:
     driver: local
     driver_opts:
