@@ -1,9 +1,6 @@
-# T-Pot (Standard)
-# For docker-compose ...
 version: '3.4'
 
 services:
-# Suricata service
   suricata:
     container_name: service-suricata
     build:
@@ -12,7 +9,7 @@ services:
     restart: unless-stopped
     network_mode: "host"
     environment:
-      - LISTEN_IFACE=eth0
+      - LISTEN_IFACE=${SURICATA_LISTEN_IFACE}
     cap_add:
       - NET_ADMIN
       - NET_RAW
