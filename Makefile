@@ -5,10 +5,10 @@ makestorage: ## just make the directories for storage
 	mkdir -p ./storage/elasticsearch ./storage/portainer ./storage/eve
 
 makenetwork: ## just make the networks
-	-sh ./network.sh start
+	-bash ./network.sh start
 
 stopnetwork: ## just make the networks
-	-sh ./network.sh stop
+	-bash ./network.sh stop
 
 build: ## Build the app
 	docker-compose stop ;\
