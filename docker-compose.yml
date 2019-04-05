@@ -40,8 +40,7 @@ services:
       - network_proxy
     labels:
       - traefik.docker.network=network_proxy
-      - traefik.frontend.rule=Host:traefik.docker.local
-      - traefik.frontend.auth.basic=admin:$$apr1$$Uwy4HMRc$$mO4kAq2Vh3gDoeYZp6kSc0
+      - traefik.frontend.rule=Host:traefik.docker.localhost
       - traefik.port=8080
 
   portainer:
@@ -57,7 +56,7 @@ services:
     ports:
       - 9000
     labels:
-      - traefik.frontend.rule=Host:portainer.docker.local
+      - traefik.frontend.rule=Host:portainer.docker.localhost
       - traefik.port=9000
       - org.label-schema.group=portainer
       - traefik.backend.healthcheck.interval=60s
@@ -76,7 +75,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:cron.docker.local
+      - traefik.frontend.rule=Host:cron.docker.localhost
       - traefik.port=8000
 
   kibana:
@@ -96,7 +95,7 @@ services:
       - elasticsearch
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:kibana.docker.local
+      - traefik.frontend.rule=Host:kibana.docker.localhost
       - traefik.port=5601
 
 
