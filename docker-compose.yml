@@ -79,13 +79,18 @@ services:
 
   kibana:
     container_name: service-kibana
-    image: blacktop/kibana:6.5.4
+    image: docker.elastic.co/kibana/kibana:6.7.1
+    #image: blacktop/kibana:6.7
+    #build:
+    #  context: ./docker_contexts/kibana
+    #  dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - 5601
+      - 5601:5601
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
     networks:
+      - network_frontend
       - network_proxy
       - network_db
     depends_on:
@@ -98,34 +103,19 @@ services:
       - traefik.docker.network=network_proxy
       - traefik.frontend.rule=Host:kibana.docker.localhost
 
-  logstash:
-    container_name: service-logstash
-    image: blacktop/logstash:6.5.4
-    restart: unless-stopped
-    command: -f /etc/logstash/conf.d/
-    volumes:
-      - $PWD/container_mounts/logstash/:/etc/logstash/conf.d
-    networks:
-      - network_frontend
-      - network_proxy
-      - network_db
-    depends_on:
-      - elasticsearch
-    links:
-      - elasticsearch
-    ports:
-      - 5044:5044
-    labels:
-      - traefik.enable=false
-
   elasticsearch:
     container_name: service-elasticsearch
-    image: blacktop/elasticsearch:6.5.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.7.1
+    #image: blacktop/elasticsearch:6.7
+    #build:
+    #  context: ./docker_contexts/elasticsearch
+    #  dockerfile: Dockerfile
     restart: unless-stopped
     networks:
+      - network_frontend
       - network_db
     ports:
-      - 9200
+      - 9200:9200
       - 9300
     environment:
       - discovery.type=single-node

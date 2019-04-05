@@ -1,12 +1,14 @@
-FROM alpine:3.8
+FROM alpine:3.9
 
 ENV TIMEZONE=UTC \
     ENV=/etc/profile \
     APP_ENV=prod
 
+ENV FILEBEAT_VERSION=6.7.1 \
+    FILEBEAT_URL=https://artifacts.elastic.co/downloads/beats/filebeat
+
 # add in repos for testing
-RUN echo '@edgetest http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
-    apk --no-cache add dumb-init tzdata ca-certificates file procps wget py-pip suricata filebeat@edgetest
+RUN apk --no-cache add dumb-init tzdata ca-certificates file procps wget py-pip suricata libc6-compat
 
 # configure up some container stuff
 RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
@@ -44,6 +46,11 @@ RUN suricata-update update-sources && \
     suricata-update enable-source sslbl/ssl-fp-blacklist && \
     suricata-update list-enabled-sources && \
     suricata-update
+
+# Install Filebeater
+RUN wget ${FILEBEAT_URL}/filebeat-${FILEBEAT_VERSION}-linux-x86_64.tar.gz -O /tmp/filebeat.tgz && \
+    tar -zxf /tmp/filebeat.tgz -C / && \
+    mv /filebeat-${FILEBEAT_VERSION}-linux-x86_64 /filebeat
 
 # Include more configs here to maximize cache
 COPY config/capture-filter.bpf /etc/suricata/capture-filter.bpf

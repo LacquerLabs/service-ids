@@ -17,6 +17,7 @@ RUN   apk --no-cache add \
 COPY supervisord.conf /etc/supervisord.conf
 COPY . /crontab-ui
 RUN	npm install
+RUN ln -s /usr/bin/node /usr/local/bin/node
 
 ENV	HOST=0.0.0.0 \
 	PORT=8000 \

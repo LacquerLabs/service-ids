@@ -27,7 +27,8 @@ fi
 echo "configuring ${IFACE}..."
 /sbin/ip link set ${IFACE} multicast off
 /sbin/ip link set ${IFACE} promisc on
+/sbin/ip link set ${IFACE} up
 
 echo "starting app..."
-filebeat -e --c /etc/filebeat.yml &
-suricata -v -F /etc/suricata/capture-filter.bpf -i ${IFACE}
+/filebeat/filebeat -e --c /etc/filebeat.yml &
+/usr/bin/suricata -v -F /etc/suricata/capture-filter.bpf -i ${IFACE}

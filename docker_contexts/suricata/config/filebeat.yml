@@ -1,20 +1,28 @@
-filebeat.prospectors:
-  - input_type: log
+filebeat.config.modules.path: "/filebeat/modules.d/*.yml"
+filebeat.modules:
+- module: suricata
+  eve:
     enabled: true
-    paths:
-     - "/var/log/suricata/eve.json"
-    fields:
-        application: suricata
-    fields_under_root: true
-    json.message_key: log
-    json.keys_under_root: true
-    json.overwrite_keys: true
+    var.paths:
+      - "/var/log/suricata/eve.json"
+
+#filebeat.prospectors:
+#  - input_type: log
+#    enabled: true
+#    paths:
+#      - "/var/log/suricata/eve.json"
+#    fields:
+#        application: suricata
+#    fields_under_root: true
+#    json.message_key: log
+#    json.keys_under_root: true
+#    json.overwrite_keys: true
 
 output:
-  logstash:
-    hosts: '127.0.0.1:5044'
-  # elasticsearch:
-  #   hosts: '127.0.0.1:9200'
+  # logstash:
+  #   hosts: ["localhost:5044"]
+  elasticsearch:
+    hosts: ["localhost:9200"]
 
 logging:
   to_files: false
