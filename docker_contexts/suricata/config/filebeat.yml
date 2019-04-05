@@ -12,7 +12,7 @@ filebeat.prospectors:
 
 output:
   logstash:
-    hosts: '127.0.0.1:5044'
+    hosts: 'logstash:5044'
   # elasticsearch:
   #   hosts: '127.0.0.1:9200'
 
