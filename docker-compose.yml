@@ -39,9 +39,10 @@ services:
       - network_frontend
       - network_proxy
     labels:
+      - traefik.enable=true
+      - traefik.port=8080
       - traefik.docker.network=network_proxy
       - traefik.frontend.rule=Host:traefik.docker.localhost
-      - traefik.port=8080
 
   portainer:
     container_name: service-portainer
@@ -56,10 +57,10 @@ services:
     ports:
       - 9000
     labels:
-      - traefik.frontend.rule=Host:portainer.docker.localhost
+      - traefik.enable=true
       - traefik.port=9000
-      - org.label-schema.group=portainer
-      - traefik.backend.healthcheck.interval=60s
+      - traefik.docker.network=network_proxy
+      - traefik.frontend.rule=Host:portainer.docker.localhost
 
   cron:
     container_name: service-cron
@@ -75,8 +76,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:cron.docker.localhost
       - traefik.port=8000
+      - traefik.docker.network=network_proxy
+      - traefik.frontend.rule=Host:cron.docker.localhost
 
   kibana:
     container_name: service-kibana
@@ -95,9 +97,9 @@ services:
       - elasticsearch
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:kibana.docker.localhost
       - traefik.port=5601
-
+      - traefik.docker.network=network_proxy
+      - traefik.frontend.rule=Host:kibana.docker.localhost
 
   logstash:
     container_name: service-logstash
@@ -105,9 +107,7 @@ services:
     restart: unless-stopped
     command: -f /etc/logstash/conf.d/
     volumes:
-      - $PWD/container_mounts/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf
-      - $PWD/container_mounts/logstash/elasticsearch-template.json:/etc/logstash/elasticsearch-template.json
-      - $PWD/container_mounts/logstash/GeoLite2-City.mmdb:/data/GeoLite2-City.mmdb
+      - $PWD/container_mounts/logstash/:/etc/logstash/conf.d
     networks:
       - network_frontend
       - network_proxy
