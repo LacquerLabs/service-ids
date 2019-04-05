@@ -86,13 +86,12 @@ services:
     #  dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - 5601:5601
+      # - 5601:5601
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
     networks:
-      - network_frontend
+      # - network_frontend
       - network_proxy
-      - network_db
     depends_on:
       - elasticsearch
     links:
@@ -113,7 +112,6 @@ services:
     restart: unless-stopped
     networks:
       - network_frontend
-      - network_db
     ports:
       - 9200:9200
       - 9300
@@ -128,8 +126,6 @@ networks:
   network_proxy:
     external: true
   network_frontend:
-    external: true
-  network_db:
     external: true
 
 volumes:
