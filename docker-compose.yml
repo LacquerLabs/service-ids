@@ -5,6 +5,7 @@ version: '3.4'
 services:
 # Suricata service
   suricata:
+    container_name: service-suricata
     build:
       context: ./docker_contexts/suricata
       dockerfile: Dockerfile
@@ -21,7 +22,8 @@ services:
     labels:
       - traefik.enable=false
 
-  reverse-proxy:
+  traefik:
+    container_name: service-traefik
     image: traefik:v1.7.6-alpine  # The official Traefik docker image
     restart: unless-stopped
     command: --docker  # Enables the web UI and tells Traefik to listen to docker
@@ -38,7 +40,7 @@ services:
       - network_proxy
     labels:
       - traefik.docker.network=network_proxy
-      - traefik.frontend.rule=Host:traefik.docker.localhost
+      - traefik.frontend.rule=Host:traefik.docker.local
       - traefik.frontend.auth.basic=admin:$$apr1$$Uwy4HMRc$$mO4kAq2Vh3gDoeYZp6kSc0
       - traefik.port=8080
 
@@ -55,12 +57,13 @@ services:
     ports:
       - 9000
     labels:
-      - traefik.frontend.rule=Host:portainer.docker.localhost
+      - traefik.frontend.rule=Host:portainer.docker.local
       - traefik.port=9000
       - org.label-schema.group=portainer
       - traefik.backend.healthcheck.interval=60s
 
-  cronjobber:
+  cron:
+    container_name: service-cron
     build:
       context: ./docker_contexts/crontab-ui
       dockerfile: Dockerfile
@@ -73,10 +76,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:cronjobber.docker.localhost
+      - traefik.frontend.rule=Host:cron.docker.local
       - traefik.port=8000
 
   kibana:
+    container_name: service-kibana
     image: blacktop/kibana:6.5.4
     restart: unless-stopped
     ports:
@@ -92,11 +96,12 @@ services:
       - elasticsearch
     labels:
       - traefik.enable=true
-      - traefik.frontend.rule=Host:kibana.docker.localhost
+      - traefik.frontend.rule=Host:kibana.docker.local
       - traefik.port=5601
 
 
   logstash:
+    container_name: service-logstash
     image: blacktop/logstash:6.5.4
     restart: unless-stopped
     command: -f /etc/logstash/conf.d/
@@ -118,6 +123,7 @@ services:
       - traefik.enable=false
 
   elasticsearch:
+    container_name: service-elasticsearch
     image: blacktop/elasticsearch:6.5.4
     restart: unless-stopped
     networks:
